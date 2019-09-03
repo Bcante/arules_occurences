@@ -7,7 +7,7 @@ sup = 0.01
 input_labels_utilisateurs = c("whole milk","pork","shoe","root vegetables","tropical fruit")
 decompte_lhs = T
 decompte_rhs = F
-lhs_exclusif = T
+lhs_exclusif = F
 rhs_exclusif = F
 grocery_rules <- apriori(Groceries, parameter = list(support = sup, confidence = conf))
 affiche_occurences(grocery_rules,input_labels_utilisateurs,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif)
@@ -113,7 +113,6 @@ affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decom
   occurences=count_occurences(rules_utilisateurs,named_vector,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
   genere_plot(occurences,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup)
 }
-affiche_occurences(grocery_rules,input_labels_utilisateurs,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif)
 
 # genere_plot(labels_utilisateurs_comptes,T,T,T,F,conf,sup)
 # genere_plot()
