@@ -1,16 +1,7 @@
 library(ggplot2)
 library(arules)
 library(dplyr)
-data("Groceries")
-conf = 0.3
-sup = 0.01
-input_labels_utilisateurs = c("whole milk","pork","shoe","root vegetables","tropical fruit")
-decompte_lhs = T
-decompte_rhs = F
-lhs_exclusif = F
-rhs_exclusif = F
-grocery_rules <- apriori(Groceries, parameter = list(support = sup, confidence = conf))
-affiche_occurences(grocery_rules,input_labels_utilisateurs,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif)
+
   
 #Prepare un vecteur nommé contenant en nom chaque label existant dans le jeux de données
 #Si label_utilisateurs cont
@@ -20,7 +11,6 @@ prepare_named_vector <- function(rules, labels_utilisateurs) {
   labels_utilisateurs = setNames(labels_utilisateurs_presents,labels_utilisateurs)
   return(labels_utilisateurs)
 }
-# labels_utilisateurs_nettoyes=prepare_named_vector(grocery_rules,input_labels_utilisateurs)
 
 #Permet  d'avoir pour chaque label le nombre d'occurence en RHS ou LHS
 count_occurences <- function(rules,labels_utilisateurs, decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F) {
@@ -60,12 +50,8 @@ count_occurences <- function(rules,labels_utilisateurs, decompte_lhs = F, decomp
   return(apparition_lhs+apparition_rhs)
 }
 
-# labels_utilisateurs_comptes=
-#   count_occurences(grocery_rules,labels_utilisateurs_nettoyes,T,T,T,F) 
-# 
-
-genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup) {
-  
+#Permet de créer le titre du graphique selon si on fait le décompte des occurences en lhs et/ou rhs 
+genere_titre <- function (decompte_lhs,decompte_rhs) {
   titre = "Apparition en "
   if (decompte_lhs == T & decompte_rhs == T) {
     titre = paste(titre ,"antécédent ou conséquence",sep = "")
@@ -76,7 +62,11 @@ genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs
   } else {
     stop("decompte_lhs et decompte_rhs sont FAUX, hors au moins un des deux doit être VRAI")
   }
-  
+  return(titre)
+}
+
+genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles) {
+  titre = genere_titre(decompte_lhs,decompte_rhs)
   
   lhs_label = "exclusif"
   rhs_label = "exclusif"
@@ -88,7 +78,7 @@ genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs
   }
   
   conf_et_sup_label = paste("confiance: ",conf,", support: ",sup,sep = "")
-  sous_titre=paste("antécédent: ",lhs_label,", conséquence: ",rhs_label,", ",conf_et_sup_label,sep = "")
+  sous_titre=paste("antécédent: ",lhs_label,", conséquence: ",rhs_label,", ",conf_et_sup_label,", # de règles total: ",nb_regles,sep = "")
   
   
   df=data.frame(keyName=names(liste_a_analyser), value=liste_a_analyser, row.names=NULL) %>% 
@@ -109,11 +99,8 @@ genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs
 }
 
 affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decompte_lhs = F,decompte_rhs = T,lhs_exclusif = F,rhs_exclusif = F) {
+  nb_regles=rules_utilisateurs %>% length()
   named_vector=prepare_named_vector(rules_utilisateurs,input_labels_utilisateurs)
   occurences=count_occurences(rules_utilisateurs,named_vector,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
-  genere_plot(occurences,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup)
+  genere_plot(occurences,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles)
 }
-
-# genere_plot(labels_utilisateurs_comptes,T,T,T,F,conf,sup)
-# genere_plot()
-
