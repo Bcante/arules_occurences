@@ -2,11 +2,14 @@ library(ggplot2)
 library(arules)
 library(dplyr)
 
-  
+intersecte_labels <- function(labels_utilisateurs, rules) {
+  return(labels_utilisateurs %>% intersect(itemLabels(rules)))
+}
+
 #Prepare un vecteur nommé contenant en nom chaque label existant dans le jeux de données
 #Si label_utilisateurs cont
 prepare_named_vector <- function(rules, labels_utilisateurs) {
-  labels_utilisateurs=labels_utilisateurs %>% intersect(itemLabels(rules))
+  labels_utilisateurs=intersecte_labels(labels_utilisateurs,rules)
   labels_utilisateurs_presents=numeric(length(labels_utilisateurs)) #Préallocation d'un vecteur nommé
   labels_utilisateurs = setNames(labels_utilisateurs_presents,labels_utilisateurs)
   return(labels_utilisateurs)
