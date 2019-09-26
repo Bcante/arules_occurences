@@ -9,7 +9,6 @@ intersecte_labels <- function(labels_utilisateurs, rules) {
 #Prepare un vecteur nommé contenant en nom chaque label existant dans le jeux de données
 #Si label_utilisateurs cont
 prepare_named_vector <- function(rules, labels_utilisateurs) {
-  labels_utilisateurs=intersecte_labels(labels_utilisateurs,rules)
   labels_utilisateurs_presents=numeric(length(labels_utilisateurs)) #Préallocation d'un vecteur nommé
   labels_utilisateurs = setNames(labels_utilisateurs_presents,labels_utilisateurs)
   return(labels_utilisateurs)
@@ -50,7 +49,10 @@ count_occurences <- function(rules,labels_utilisateurs, decompte_lhs = F, decomp
       }
     }
   }
-  return(apparition_lhs+apparition_rhs)
+  somme = apparition_lhs+apparition_rhs 
+  res=data.frame(keyName=names(somme), value=somme, row.names=NULL) %>% 
+    filter (value > 0) %>% rename(nom = keyName, nb_occurences = value)
+  return(res)
 }
 
 #Permet de créer le titre du graphique selon si on fait le décompte des occurences en lhs et/ou rhs 
@@ -68,7 +70,9 @@ genere_titre <- function (decompte_lhs,decompte_rhs) {
   return(titre)
 }
 
-genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles) {
+#A partir d'un df contenant les moyennes et le nombre d'occurences, génère un diagramme en bar affichant le nombre d'occurence
+#et des indicateurs sur la pertinence des règles
+genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles) {
   titre = genere_titre(decompte_lhs,decompte_rhs)
   
   lhs_label = "exclusif"
@@ -84,10 +88,7 @@ genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs
   sous_titre=paste("antécédent: ",lhs_label,", conséquence: ",rhs_label,", ",conf_et_sup_label,", # de règles total: ",nb_regles,sep = "")
   
   
-  df=data.frame(keyName=names(liste_a_analyser), value=liste_a_analyser, row.names=NULL) %>% 
-    filter (value > 0)
-  
-  p<-ggplot(data=df, aes(x=reorder(keyName,-value), y=value)) +
+  p<-ggplot(data=df_final, aes(x=reorder(nom,-nb_occurences), y=nb_occurences)) +
     geom_bar(stat="identity", fill="steelblue")+
     ggtitle(titre) +
     theme_minimal() +
@@ -101,6 +102,7 @@ genere_plot <- function(liste_a_analyser,decompte_lhs = F, decompte_rhs = F, lhs
   
 }
 
+#Pour un set de règle selon un label, calcule la moyenne de support / confiance / lift
 calcule_mean <- function(label,rules_item) {
   rules_df = data.frame(
     lhs = labels(lhs(rules_item)),
@@ -118,6 +120,8 @@ calcule_mean <- function(label,rules_item) {
   return(rules_df)
 }
 
+#Pour un ensemble de règles données sur certains labels et en tenant compte des resdtrictions lhs / rhs, génère pour chaque label
+#la moyenne des support / confiance / lift de chaque règle
 mean_rules = function(labels_utilisateurs,rules,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif) {
   rules_lhs = 1
   rules_rhs = 1
@@ -157,9 +161,16 @@ mean_rules = function(labels_utilisateurs,rules,decompte_lhs,decompte_rhs,lhs_ex
   return(bind_rows(df_list))
 }
 
+#Fonction qui encapsule tout le traitement
 affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decompte_lhs = F,decompte_rhs = T,lhs_exclusif = F,rhs_exclusif = F) {
   nb_regles=rules_utilisateurs %>% length()
+  input_labels_utilisateurs=intersecte_labels(input_labels_utilisateurs,rules_utilisateurs)
   named_vector=prepare_named_vector(rules_utilisateurs,input_labels_utilisateurs)
+  
+  mean_stats=mean_rules(input_labels_utilisateurs,grocery_rules,T,F,F,F)
   occurences=count_occurences(rules_utilisateurs,named_vector,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
-  genere_plot(occurences,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles)
+  
+  df_final = inner_join(mean_stats,occurences,by="nom")
+  
+  genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles)
 }
