@@ -72,7 +72,11 @@ genere_titre <- function (decompte_lhs,decompte_rhs) {
 
 #A partir d'un df contenant les moyennes et le nombre d'occurences, génère un diagramme en bar affichant le nombre d'occurence
 #et des indicateurs sur la pertinence des règles
-genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles) {
+genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles,mesure="mean_lift") {
+  if(!(mesure %in% c("mean_support","mean_lift","mean_confidence"))) {
+    stop("La mesure sélectionnée n'est pas reconnue (doit être mean_support, mean_confidence, ou mean_lift)")
+  }
+  
   titre = genere_titre(decompte_lhs,decompte_rhs)
   
   lhs_label = "exclusif"
@@ -87,19 +91,8 @@ genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusi
   conf_et_sup_label = paste("confiance: ",conf,", support: ",sup,sep = "")
   sous_titre=paste("antécédent: ",lhs_label,", conséquence: ",rhs_label,", ",conf_et_sup_label,", # de règles total: ",nb_regles,sep = "")
   
-  # ggplot(df,aes(x=reorder(person_created_by,-n), y=n)) +
-    # ggtitle("Membres crées par les différents canaux") +
-    # geom_col(aes(fill = prc_evo)) + 
-    # scale_fill_gradient(
-    #   high="steelblue4", 
-    #   low="grey"
-    # ) +
-    # theme(axis.text.x = element_text(angle = 45, hjust = 1,size=14),    panel.background = element_rect(fill = "white")) +
-    # xlab("Canaux de création") +
-    # ylab("Nouveaux membres")
-  
   p<-ggplot(data=df_final, aes(x=reorder(nom,-nb_occurences), y=nb_occurences)) +
-    geom_col(aes(fill = mean_support)) + 
+    geom_col(aes_string(fill = mesure)) + 
     scale_fill_gradient(
       high="steelblue4", 
       low="grey"
@@ -176,7 +169,7 @@ mean_rules = function(labels_utilisateurs,rules,decompte_lhs,decompte_rhs,lhs_ex
 }
 
 #Fonction qui encapsule tout le traitement
-affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decompte_lhs = F,decompte_rhs = T,lhs_exclusif = F,rhs_exclusif = F) {
+affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decompte_lhs = F,decompte_rhs = T,lhs_exclusif = F,rhs_exclusif = F,mesure="mean_lift") {
   nb_regles=rules_utilisateurs %>% length()
   input_labels_utilisateurs=intersecte_labels(input_labels_utilisateurs,rules_utilisateurs)
   named_vector=prepare_named_vector(rules_utilisateurs,input_labels_utilisateurs)
@@ -186,5 +179,5 @@ affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decom
   
   df_final = inner_join(mean_stats,occurences,by="nom")
   
-  genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles)
+  genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles,mesure)
 }
