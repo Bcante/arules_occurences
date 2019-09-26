@@ -51,7 +51,7 @@ count_occurences <- function(rules,labels_utilisateurs, decompte_lhs = F, decomp
   }
   somme = apparition_lhs+apparition_rhs 
   res=data.frame(keyName=names(somme), value=somme, row.names=NULL) %>% 
-    filter (value > 0) %>% rename(nom = keyName, nb_occurences = value)
+    filter (value > 0) %>% dplyr::rename(nom = keyName, nb_occurences = value)
   return(res)
 }
 
@@ -70,7 +70,7 @@ genere_titre <- function (decompte_lhs,decompte_rhs) {
   return(titre)
 }
 
-#A partir d'un df contenant les moyennes et le nombre d'occurences, génère un diagramme en bar affichant le nombre d'occurence
+#A partir d'un df contenant les moyennes et le nombre d'occurences, génère un diagramme en bar affichant le nombre d'occurence/
 #et des indicateurs sur la pertinence des règles
 genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusif = F , rhs_exclusif = F,conf,sup,nb_regles,mesure="mean_lift") {
   if(!(mesure %in% c("mean_support","mean_lift","mean_confidence"))) {
@@ -174,10 +174,9 @@ affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decom
   input_labels_utilisateurs=intersecte_labels(input_labels_utilisateurs,rules_utilisateurs)
   named_vector=prepare_named_vector(rules_utilisateurs,input_labels_utilisateurs)
   
-  mean_stats=mean_rules(input_labels_utilisateurs,grocery_rules,T,F,F,F)
+  mean_stats=mean_rules(input_labels_utilisateurs,grocery_rules,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
   occurences=count_occurences(rules_utilisateurs,named_vector,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
-  
   df_final = inner_join(mean_stats,occurences,by="nom")
-  
-  genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles,mesure)
+  return(df_final)
+  #genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles,mesure)
 }

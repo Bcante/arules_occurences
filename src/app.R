@@ -1,3 +1,13 @@
+getwd()
+setwd(dir = "./Bureau/arules_occurences/")
+source("src/fonctions_occurences.R")
+data("Groceries")
+conf = 0.3
+sup = 0.01
+input_labels_utilisateurs = c("whole milk","pork","shoe","root vegetables","tropical fruit","shoe")
+mesure="mean_confidence"
+Groceries
+grocery_rules <- apriori(Groceries, parameter = list(support = sup, confidence = conf))
 
 library(shiny)
 library(plyr)
@@ -14,41 +24,44 @@ ui <- fluidPage(
     # Sidebar panel for inputs ----
     sidebarPanel(
       radioButtons("lhs", "Apparition en antécédent:",
-                   c("Oui" = "T",
-                     "Non" = "F"),selected = "F"),
+                   c("Oui" = T,
+                     "Non" = F),selected = T),
       radioButtons("rhs", "Apparition en conséquence:",
-                   c("Oui" = "T",
-                     "Non" = "F"),selected = "F"),
+                   c("Oui" = T,
+                     "Non" = F),selected = F),
       radioButtons("lhs_exclusif", "Antécédent exclusif:",
-                   c("Oui" = "T",
-                     "Non" = "F"),selected = "F"),
+                   c("Oui" = T,
+                     "Non" = F),selected = F),
       radioButtons("rhs_exclusif", "Conséquence exclusive:",
-                   c("Oui" = "T",
-                     "Non" = "F"),selected = "F"),
-      radioButtons("rhs", "Mesure à mettre en évidence:",
+                   c("Oui" = T,
+                     "Non" = F),selected = F),
+      radioButtons("mesure", "Mesure à mettre en évidence:",
                    c("Support" = "mean_support",
                      "Confiance" = "mean_confidence",
-                     "Lift" = "mean_lift"),selected = "F")
+                     "Lift" = "mean_lift"),selected = "mean_lift")
     ),
     mainPanel(
       tabsetPanel(type="tabs",
-                  tabPanel("Visualisation graphique",plotOutput(outputId = "arules")),
+                  tabPanel("Visualisation graphique",plotOutput(outputId = "arules"),
                   tabPanel("Visualisation tabulaire",plotOutput(outputId = "table_arules"))
                   ) #Vue barchart"
                   # tabPanel("Evolution ca et nb de membres" # vue tabulaire
       )
       
     )
-  )
+  ))
   # Main panel for displaying outputs ----
   
 
 server <- function(input, output) {
   output$arules = renderPlot({
-    
+    df=affiche_occurences(grocery_rules,input_labels_utilisateurs,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,input$mesure)
+    genere_plot(df,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,conf,sup,10,input$mesure)
   })
 }
 
 
+
 shinyApp(ui = ui, server = server)
 
+  
