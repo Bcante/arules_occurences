@@ -87,10 +87,24 @@ genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusi
   conf_et_sup_label = paste("confiance: ",conf,", support: ",sup,sep = "")
   sous_titre=paste("antécédent: ",lhs_label,", conséquence: ",rhs_label,", ",conf_et_sup_label,", # de règles total: ",nb_regles,sep = "")
   
+  # ggplot(df,aes(x=reorder(person_created_by,-n), y=n)) +
+    # ggtitle("Membres crées par les différents canaux") +
+    # geom_col(aes(fill = prc_evo)) + 
+    # scale_fill_gradient(
+    #   high="steelblue4", 
+    #   low="grey"
+    # ) +
+    # theme(axis.text.x = element_text(angle = 45, hjust = 1,size=14),    panel.background = element_rect(fill = "white")) +
+    # xlab("Canaux de création") +
+    # ylab("Nouveaux membres")
   
   p<-ggplot(data=df_final, aes(x=reorder(nom,-nb_occurences), y=nb_occurences)) +
-    geom_bar(stat="identity", fill="steelblue")+
-    ggtitle(titre) +
+    geom_col(aes(fill = mean_support)) + 
+    scale_fill_gradient(
+      high="steelblue4", 
+      low="grey"
+    ) +
+    ggtitle(titre) + 
     theme_minimal() +
     labs(
       subtitle = sous_titre,
