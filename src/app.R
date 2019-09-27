@@ -5,7 +5,6 @@ conf = 0.3
 sup = 0.01
 input_labels_utilisateurs = c("whole milk","pork","shoe","root vegetables","tropical fruit","shoe")
 mesure="mean_confidence"
-Groceries
 grocery_rules <- apriori(Groceries, parameter = list(support = sup, confidence = conf))
 
 library(shiny)
@@ -22,12 +21,10 @@ ui <- fluidPage(
   sidebarLayout(
     # Sidebar panel for inputs ----
     sidebarPanel(
-      
       radioButtons("lhs", "Apparition en antécédent:",
                    c("Oui" = T,
                      "Non" = F),selected = T),
       radioButtons("rhs", "Apparition en conséquence:",
-                   c("Oui" = T,
                      "Non" = F),selected = F),
       radioButtons("lhs_exclusif", "Antécédent exclusif:",
                    c("Oui" = T,
@@ -48,7 +45,7 @@ ui <- fluidPage(
       )
   )
   )
-)
+
   # Main panel for displaying outputs ----
   
 
