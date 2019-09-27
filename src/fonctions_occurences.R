@@ -93,7 +93,7 @@ genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusi
   
   p<-ggplot(data=df_final, aes(x=reorder(nom,-nb_occurences), y=nb_occurences)) +
     geom_col(aes_string(fill = mesure),position = "dodge") +
-    geom_text(aes_string(label = mesure), position=position_dodge(width=0.9), vjust=-0.25) +
+    geom_text(aes_string(label = mesure), position = position_stack(vjust = .5), vjust=-0.25,size=8) +
     scale_fill_gradient(
       high="steelblue4",
       low="grey"
@@ -105,9 +105,11 @@ genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusi
       x="items",
       y=paste("nombre d'occurences")
     ) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1),axis.text=element_text(size=12))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),axis.text=element_text(size=15),
+          axis.title.x = element_text(size=15),
+          axis.title.y = element_text(size=15),
+          )
   return(p)
-  
 }
 
 #Pour un set de règle selon un label, calcule la moyenne de support / confiance / lift
@@ -177,7 +179,7 @@ affiche_occurences = function(rules_utilisateurs,input_labels_utilisateurs,decom
   
   mean_stats=mean_rules(input_labels_utilisateurs,grocery_rules,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
   occurences=count_occurences(rules_utilisateurs,named_vector,decompte_lhs,decompte_rhs,lhs_exclusif,rhs_exclusif)
-  df_final = inner_join(mean_stats,occurences,by="nom")
+  df_final = inner_join(mean_stats,occurences,by="nom") %>% select(nom,nb_occurences,everything())
   return(df_final)
   #genere_plot(df_final,decompte_lhs, decompte_rhs, lhs_exclusif, rhs_exclusif,conf,sup,nb_regles,mesure)
 }
