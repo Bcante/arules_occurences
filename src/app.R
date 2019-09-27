@@ -22,6 +22,7 @@ ui <- fluidPage(
   sidebarLayout(
     # Sidebar panel for inputs ----
     sidebarPanel(
+      
       radioButtons("lhs", "Apparition en antécédent:",
                    c("Oui" = T,
                      "Non" = F),selected = T),
@@ -41,14 +42,13 @@ ui <- fluidPage(
     ),
     mainPanel(
       tabsetPanel(type="tabs",
-                  tabPanel("Visualisation graphique",plotOutput(outputId = "arules"),
-                  tabPanel("Visualisation tabulaire",plotOutput(outputId = "table_arules"))
-                  ) #Vue barchart"
+                  tabPanel("Visualisation graphique",plotOutput(outputId = "arules")),
+                  tabPanel("Visualisation tabulaire",tableOutput(outputId = "table_arules"))
                   # tabPanel("Evolution ca et nb de membres" # vue tabulaire
       )
-      
-    )
-  ))
+  )
+  )
+)
   # Main panel for displaying outputs ----
   
 
@@ -57,6 +57,9 @@ server <- function(input, output) {
     df=affiche_occurences(grocery_rules,input_labels_utilisateurs,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,input$mesure) %>% 
       mutate_if(is.numeric, round, 5)
     genere_plot(df,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,conf,sup,10,input$mesure)
+  })
+  output$table_arules=renderTable({
+    df=affiche_occurences(grocery_rules,input_labels_utilisateurs,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,input$mesure)
   })
 }
 
