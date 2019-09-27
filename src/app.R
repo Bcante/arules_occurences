@@ -1,5 +1,4 @@
-getwd()
-setwd(dir = "./Bureau/arules_occurences/")
+#setwd(dir = "./Bureau/arules_occurences/")
 source("src/fonctions_occurences.R")
 data("Groceries")
 conf = 0.3
