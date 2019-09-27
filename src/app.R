@@ -54,7 +54,8 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   output$arules = renderPlot({
-    df=affiche_occurences(grocery_rules,input_labels_utilisateurs,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,input$mesure)
+    df=affiche_occurences(grocery_rules,input_labels_utilisateurs,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,input$mesure) %>% 
+      mutate_if(is.numeric, round, 5)
     genere_plot(df,input$lhs,input$rhs,input$lhs_exclusif,input$rhs_exclusif,conf,sup,10,input$mesure)
   })
 }

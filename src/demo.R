@@ -15,5 +15,6 @@ mesure="mean_confidence"
 Groceries
 grocery_rules <- apriori(Groceries, parameter = list(support = sup, confidence = conf))
 
-affiche_occurences(grocery_rules,input_labels_utilisateurs,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif,mesure)
+df=affiche_occurences(grocery_rules,input_labels_utilisateurs,decompte_lhs,decompte_rhs,lhs_exclusif, rhs_exclusif,mesure)
 
+df 

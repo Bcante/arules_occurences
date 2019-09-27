@@ -93,9 +93,9 @@ genere_plot <- function(df_final,decompte_lhs = F, decompte_rhs = F, lhs_exclusi
   
   p<-ggplot(data=df_final, aes(x=reorder(nom,-nb_occurences), y=nb_occurences)) +
     geom_col(aes_string(fill = mesure),position = "dodge") +
-    geom_text(aes_string(label=mesure), position=position_dodge(width=0.9), vjust=-0.25) +
+    geom_text(aes_string(label = mesure), position=position_dodge(width=0.9), vjust=-0.25) +
     scale_fill_gradient(
-      high="steelblue4", 
+      high="steelblue4",
       low="grey"
     ) +
     ggtitle(titre) + 
